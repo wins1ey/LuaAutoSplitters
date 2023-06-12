@@ -3,7 +3,6 @@ processID('AmidEvil-Win64-Shipping.exe')
 local baseAddress = 0x140000000
 
 local prevStart
-
 local prevLoading
 local prevMenuStage
 local prevPaused
