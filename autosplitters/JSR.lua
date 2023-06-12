@@ -8,10 +8,10 @@ local prevBossGraffiti
 local baseAddress = 0x00400000
 
 while true do
-    local loading = readAddress(8, 0x58FAAC, baseAddress)
-    local newGame = readAddress(8, 0x75A278, baseAddress)
-    local rankingScreen = readAddress(8, 0x58FB1C, baseAddress)
-    local bossGraffiti = readAddress(8, 0x55D2B8, baseAddress)
+    local loading = readAddress(8, baseAddress, 0x58FAAC)
+    local newGame = readAddress(8, baseAddress, 0x75A278)
+    local rankingScreen = readAddress(8, baseAddress, 0x58FB1C)
+    local bossGraffiti = readAddress(8, baseAddress, 0x55D2B8)
 
     if loading == 1 and prevLoading ~= 1 then
         sendCommand('pausegametime\r\n')

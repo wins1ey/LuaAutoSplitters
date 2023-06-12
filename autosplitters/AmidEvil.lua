@@ -3,7 +3,6 @@ processID('AmidEvil-Win64-Shipping.exe')
 local baseAddress = 0x140000000
 
 local prevStart
-
 local prevLoading
 local prevMenuStage
 local prevPaused
@@ -24,10 +23,10 @@ elseif mode == 2 then
 end
 
 while true do
-    local start = readAddress(8, 0x2BAFFD0, baseAddress)
-    local loading = readAddress(8, 0x2E76B0C, baseAddress)
-    local menuStage = readAddress(8, 0x2F75F14, baseAddress)
-    local paused = readAddress(8, 0x2B95A68, baseAddress)
+    local start = readAddress(8, baseAddress, 0x2BAFFD0)
+    local loading = readAddress(8, baseAddress, 0x2E76B0C)
+    local menuStage = readAddress(8, baseAddress, 0x2F75F14)
+    local paused = readAddress(8, baseAddress, 0x2B95A68)
 
     if mode == 2 and (loading == 0 and prevLoading == 1) then
         sendCommand('starttimer\r\n')
