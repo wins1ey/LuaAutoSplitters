@@ -1,1 +1,1 @@
-# AutoSplitters
+# Lua Auto Splitters
