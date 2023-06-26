@@ -2,11 +2,6 @@ process('AmidEvil-Win64-Shipping.exe')
 
 sendCommand('initgametime')
 
-local prevStart
-local prevLoading
-local prevMenuStage
-local prevPaused
-
 lasPrint('AMID EVIL\n')
 lasPrint('Mode: ')
 
@@ -22,30 +17,32 @@ elseif mode == 2 then
     lasPrint('Episodes\n')
 end
 
-while true do
-    local start = readAddress("byte", 0x2BAFFD0)
-    local loading = readAddress("byte", 0x2E76B0C)
-    local menuStage = readAddress("byte", 0x2F75F14)
-    local paused = readAddress("byte", 0x2B95A68)
+local old = {start, loading, menuStage, paused}
 
-    if mode == 2 and (loading == 0 and prevLoading == 1) then
+while true do
+
+    local current = {
+        start = readAddress('byte', 0x2BAFFD0),
+        loading = readAddress('byte', 0x2E76B0C),
+        menuStage = readAddress('byte', 0x2F75F14),
+        paused = readAddress('byte', 0x2B95A68)
+    }
+
+    if mode == 2 and (current.loading == 0 and old.loading == 1) then
         sendCommand('starttimer')
-    elseif start == 0 and prevStart == 2 then
+    elseif current.start == 0 and old.start == 2 then
         sendCommand('starttimer')
     end
 
-    if (loading == 1 and prevLoading == 0) or (menuStage == 3 and paused == 4) and (prevMenuStage ~= 3 or prevPaused ~= 4) then
+    if (current.loading == 1 and old.loading == 0) or (current.menuStage == 3 and current.paused == 4) and (old.menuStage ~= 3 or old.paused ~= 4) then
         sendCommand('pausegametime')
-    elseif (loading ~= 1 and prevLoading == 1) and (menuStage ~= 3 or paused ~= 4) then
+    elseif (current.loading ~= 1 and old.loading == 1) and (current.menuStage ~= 3 or current.paused ~= 4) then
         sendCommand('unpausegametime')
     end
 
-    if (menuStage == 3 and prevMenuStage == 2) and paused ~= 28 and paused ~= 3 then
+    if (current.menuStage == 3 and old.menuStage == 2) and current.paused ~= 28 and current.paused ~= 3 then
         sendCommand('split')
     end
 
-    prevStart = start
-    prevLoading = loading
-    prevMenuStage = menuStage
-    prevPaused = paused
+    old = current
 end
