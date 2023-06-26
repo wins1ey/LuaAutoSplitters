@@ -2,33 +2,29 @@ process('jetsetradio.exe')
 
 sendCommand('initgametime')
 
-local prevLoading
-local prevNewGame
-local prevRankingScreen
-local prevBossGraffiti
+local old = {loading, newGame, rankingScreen, bossGraffiti}
 
 while true do
-    local loading = readAddress('bool', 0x58FAAC)
-    local newGame = readAddress('bool', 0x75A278)
-    local rankingScreen = readAddress('bool', 0x58FB1C)
-    local bossGraffiti = readAddress('int', 0x55D2B8)
+    local current = {
+        loading = readAddress('bool', 0x58FAAC),
+        newGame = readAddress('bool', 0x75A278),
+        rankingScreen = readAddress('bool', 0x58FB1C),
+        bossGraffiti = readAddress('int', 0x55D2B8)
+    }
 
-    if loading and not prevLoading then
+    if current.loading and not old.loading then
         sendCommand('pausegametime')
-    elseif not loading and prevLoading then
+    elseif not current.loading and old.loading then
         sendCommand('unpausegametime')
     end
 
-    if prevNewGame and not newGame then
+    if old.newGame and not current.newGame then
         sendCommand('starttimer')
     end
 
-    if bossGraffiti == 7 and prevBossGraffiti ~= 7 or not prevRankingScreen and rankingScreen then
+    if current.bossGraffiti == 7 and old.bossGraffiti ~= 7 or not old.rankingScreen and current.rankingScreen then
         sendCommand('split')
     end
 
-    prevNewGame = newGame
-    prevLoading = loading
-    prevRankingScreen = rankingScreen
-    prevBossGraffiti = bossGraffiti
+    old = current
 end
