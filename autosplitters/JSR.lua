@@ -1,30 +1,31 @@
 process('jetsetradio.exe')
 
-sendCommand('initgametime')
+local current = {isLoading, newGame, rankingScreen, bossGraffiti}
+local old = {isLoading, newGame, bossGraffiti}
 
-local old = {loading, newGame, rankingScreen, bossGraffiti}
+function state()
+    old.newGame = current.newGame
+    old.rankingScreen = current.rankingScreen
+    old.bossGraffiti = current.bossGraffiti
 
-while true do
-    local current = {
-        loading = readAddress('bool', 0x58FAAC),
-        newGame = readAddress('bool', 0x75A278),
-        rankingScreen = readAddress('bool', 0x58FB1C),
-        bossGraffiti = readAddress('int', 0x55D2B8)
-    }
+    current.isLoading = readAddress('bool', 0x58FAAC)
+    current.newGame = readAddress('bool', 0x75A278)
+    current.rankingScreen = readAddress('bool', 0x58FB1C)
+    current.bossGraffiti = readAddress('int', 0x55D2B8)
+end
 
-    if current.loading and not old.loading then
-        sendCommand('pausegametime')
-    elseif not current.loading and old.loading then
-        sendCommand('unpausegametime')
-    end
+function startup()
+    refreshRate = 62
+end
 
-    if old.newGame and not current.newGame then
-        sendCommand('starttimer')
-    end
+function start()
+    return old.newGame and not current.newGame
+end
 
-    if current.bossGraffiti == 7 and old.bossGraffiti ~= 7 or not old.rankingScreen and current.rankingScreen then
-        sendCommand('split')
-    end
+function split()
+    return old.bossGraffiti ~= 7 and current.bossGraffiti == 7 or not old.rankingScreen and current.rankingScreen
+end
 
-    old = current
+function isLoading()
+    return current.isLoading
 end
