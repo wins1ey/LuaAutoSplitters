@@ -1,7 +1,5 @@
 process('AmidEvil-Win64-Shipping.exe')
 
-sendCommand('initgametime')
-
 lasPrint('AMID EVIL\n')
 lasPrint('Mode: ')
 
@@ -18,31 +16,34 @@ elseif mode == 2 then
 end
 
 local old = {start, loading, menuStage, paused}
+local current = {start, loading, menuStage, paused}
 
-while true do
+function state()
+    old.start = current.start
+    old.loading = current.loading
+    old.menuStage = current.menuStage
+    old.paused = current.paused
 
-    local current = {
-        start = readAddress('byte', 0x2BAFFD0),
-        loading = readAddress('byte', 0x2E76B0C),
-        menuStage = readAddress('byte', 0x2F75F14),
-        paused = readAddress('byte', 0x2B95A68)
-    }
+    current.start = readAddress('byte', 0x2BAFFD0)
+    current.loading = readAddress('byte', 0x2E76B0C)
+    current.menuStage = readAddress('byte', 0x2F75F14)
+    current.paused = readAddress('byte', 0x2B95A68)
+end
 
-    if mode == 2 and (current.loading == 0 and old.loading == 1) then
-        sendCommand('starttimer')
+function start()
+    if mode == 2 and current.loading == 0 and old.loading == 1 then
+        return true
     elseif current.start == 0 and old.start == 2 then
-        sendCommand('starttimer')
+        return true
     end
+end
 
-    if (current.loading == 1 and old.loading == 0) or (current.menuStage == 3 and current.paused == 4) and (old.menuStage ~= 3 or old.paused ~= 4) then
-        sendCommand('pausegametime')
-    elseif (current.loading ~= 1 and old.loading == 1) and (current.menuStage ~= 3 or current.paused ~= 4) then
-        sendCommand('unpausegametime')
-    end
+function isLoading()
+    return (current.loading == 1 or (current.menuStage == 3 and current.paused == 4))
+end
 
+function split()
     if (current.menuStage == 3 and old.menuStage == 2) and current.paused ~= 28 and current.paused ~= 3 then
-        sendCommand('split')
+        return true
     end
-
-    old = current
 end
